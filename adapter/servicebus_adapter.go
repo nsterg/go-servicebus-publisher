@@ -10,16 +10,19 @@ import (
 
 const messageCreationFailure = "Failed to send message to service bus due to statusCode %d"
 
+// ServiceBusAdapter is an adapter to execute http calls to azure servicebus messages endpoint
 type ServiceBusAdapter struct {
 	client HTTPClient
 }
 
+// NewServiceBusAdapter initializes a ServiceBusAdapter with an httpClient
 func NewServiceBusAdapter(client HTTPClient) ServiceBusAdapter {
 	return ServiceBusAdapter{
 		client: client,
 	}
 }
 
+// HTTPClient is an interface for http.Client
 type HTTPClient interface {
 	Do(req *http.Request) (*http.Response, error)
 }
@@ -27,7 +30,7 @@ type HTTPClient interface {
 // SendMessage sends a message to an event bus queue using a POST http request
 // serviceNamespace is the namespace of the azure service bus
 // endpoint is the name of the endpoint (topic or queue)
-// message is the actual message
+// message is the actual message body
 func (a ServiceBusAdapter) SendMessage(baseURL string, sasToken string, message interface{}) error {
 	url := fmt.Sprintf("%s/messages", baseURL)
 	requestByte, _ := json.Marshal(message)

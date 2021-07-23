@@ -12,12 +12,12 @@ var message = map[string]string{
 	"I am here": "to poke you",
 }
 var config = ServiceBusConfig{
-	Namespace:           "my-name-space",
-	Endpoint:            "my-queue",
-	SharedKeyName:       "my-shared-keyname",
-	SigningKey:          "my-signing-key",
-	SigningKeyExpiresMS: 1234,
-	EndpointBaseURL:     "http://endpoint-url",
+	Namespace:         "my-name-space",
+	Endpoint:          "my-queue",
+	SharedKeyName:     "my-shared-keyname",
+	SigningKey:        "my-signing-key",
+	SasTokenExpiresMS: 1234,
+	BaseURL:           "http://endpoint-url",
 }
 
 func TestShouldPublish(t *testing.T) {
@@ -25,9 +25,9 @@ func TestShouldPublish(t *testing.T) {
 	mockGenerator := new(FakeSasGenerator)
 
 	mockGenerator.On("Generate", "my-name-space.servicebus.windows.net/my-queue", "my-signing-key", 1234, "my-shared-keyname").Return("some-sas-token", nil)
-	mockServiceBusAdapter.On("SendMessage", "http://endpoint-url", "some-sas-token", message).Return(nil)
+	mockServiceBusAdapter.On("SendMessage", "http://endpoint-url/my-queue", "some-sas-token", message).Return(nil)
 
-	publisher := Publisher{mockServiceBusAdapter, mockGenerator, config}
+	publisher := publisher{mockServiceBusAdapter, mockGenerator, config}
 
 	err := publisher.Publish(message)
 	assert.NoError(t, err)
@@ -43,7 +43,7 @@ func TestShouldReturnErrorWhenSendMessageReturns(t *testing.T) {
 	mockGenerator.On("Generate", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return("some-sas-token", nil)
 	mockServiceBusAdapter.On("SendMessage", mock.Anything, mock.Anything, mock.Anything).Return(errors.New("An expected error"))
 
-	publisher := Publisher{mockServiceBusAdapter, mockGenerator, config}
+	publisher := publisher{mockServiceBusAdapter, mockGenerator, config}
 
 	err := publisher.Publish(message)
 	assert.Error(t, err)

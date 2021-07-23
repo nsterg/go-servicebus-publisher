@@ -27,6 +27,7 @@ type sasToken struct {
 
 // Generate generates a sas token using the provided params
 // It checks if the existing token is valid using the expiry time
+// More info here: https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-authentication-and-authorization
 func (s SasGenerator) Generate(resourceURI string, signingKey string, expiresInMins int, policyName string) string {
 	if s.isSasInvalid() {
 		uri := template.URLQueryEscaper(resourceURI)
